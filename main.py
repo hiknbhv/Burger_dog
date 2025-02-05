@@ -65,11 +65,12 @@ font = pygame.font.Font("WashYourHand.ttf", 32)
 def prep_text(text : str, background_color : tuple[int, int, int], **locations):
     text_to_return = font.render(text, True, background_color)
     text_to_return_rect =  text_to_return.get_rect()
-    for locations in loctions:
+    for location in locations.keys():
         if location == "topleft":
             rect.topleft = locations["topleft"]
         elif location == "centerx":
             rect.centerx = locations["centerx"]
+    return text_to_return, text_to_return_rect
         # NOTE:  We'll add more later.
     #TODO: for loop block end
     #TODO: return (text_to_return, rect)

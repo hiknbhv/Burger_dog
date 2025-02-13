@@ -38,7 +38,7 @@ font = pygame.font.Font("WashYourHand.ttf", 32)
 # NOTES:  text is a str, background_color is a tuple[int, int, int]
 # NOTES:  **locations is basically a dictionary of str, tuple[int, int] or int
 # NOTES:  this prep_text returns a tuple containing a Font object and a Rectangle object.
-def prep_text(text: str, background_color: tuple[int, int, int], **locations):
+def prep_text(text: str, background_color: tuple[int, int, int], **locations: object) -> object:
     text_to_return = font.render(text, True, background_color)
     rect = text_to_return.get_rect()
     for location in locations:
@@ -46,26 +46,23 @@ def prep_text(text: str, background_color: tuple[int, int, int], **locations):
             rect.topleft = locations["topleft"]
         elif location == "centerx":
             rect.centerx = locations["centerx"]
-        # TODO: (2025-02-06): add this elif portion
         elif location == "y":
             rect.y = locations["y"]
-        # TODO: (2025-02-06): add this elif portion
         elif location == "topright":
             rect.topright = locations["topright"]
-        # TODO: (2025-02-06): add this elif portion
         elif location == "center":
             rect.center = locations["center"]
     return text_to_return, rect
 
 
-#result of call
-(points_text, points_rect) = prep_text( f"Burger Points: {burger_points}", Orange, topleft=(10, 10))
-(score_text, score_rect) = prep_text( f"Score: {score}", Orange, topleft=(10, 50))
-(title_text, title_rect) = prep_text( f"Burger Dog", Orange, centerx=(Window_Width // 2, 10))
-(eaten_text, eaten_rect) = prep_text( f"Burgers Eaten: {burgers_eaten}", Orange, centerx=(Window_Width // 2, 50))
-(lives_text, lives_rect) = prep_text( f"Lives: {player_lives}", Orange,  topright=(Window_Width - 10, 10))
-(boost_text, boost_rect) = prep_text( f"Boost: {boost_level}", Orange, topright=(Window_Width - 10, 50))
-(game_over_text, game_over_rect) = prep_text( f"FINAL SCORE: {score}", Orange, center=(Window_Width // 2, Window_Height //2))
+#result of call lines (notes)
+(points_text, points_rect) = prep_text( "Burger Points: {burger_points}", Orange, topleft=(10, 10))
+(score_text, score_rect) = prep_text( "Score: {score}", Orange, topleft=(10, 50))
+(title_text, title_rect) = prep_text( "Burger Dog", Orange, centerx=Window_Width // 2, y=10)
+(eaten_text, eaten_rect) = prep_text( "Burgers Eaten: {burgers_eaten}", Orange, centerx=Window_Width // 2, y=50)
+(lives_text, lives_rect) = prep_text( "Lives: {player_lives}", Orange,  topright=(Window_Width - 10, 10))
+(boost_text, boost_rect) = prep_text( "Boost: {boost_level}", Orange, topright=(Window_Width - 10, 50))
+(game_over_text, game_over_rect) = prep_text( "FINAL SCORE: {score}", Orange, center=(Window_Width // 2, Window_Height //2))
 (continue_text, continue_rect) = prep_text( "Press any key to play again", Orange, center=(Window_Width // 2, Window_Height // 2 + 64))
 
 
@@ -108,20 +105,11 @@ def move_player():
     elif keys[pygame.K_RIGHT] and player_rect.right < Window_Width:
         player_rect.x -= player_velocity
         player_image = player_image_left
-
-    #TODO: (2025-02-10): check if keys[pygame.K_UP] and player.rect.top > 100
-    #TODO: (cont.): the if statement block
-    #TODO: (cont.):  the if statement block should subtract player_velocity from player_rect.y
-    #TODO: (cont.):  end of the if block
-
-    #TODO: (2025-02-10): check if keys[pygame.K_DOWN] and player.rect.bottom < WINDOW_HEIGHT
-    #TODO: (cont.): the if statement block
-    #TODO: (cont.):  the if statement block should add player_velocity to player_rect.y
-    #TODO: (cont.):  end of the if block
-
+    elif keys[pygame.K_UP] and player_rect.top > 100:
+        player_rect.y -= player_velocity
+    elif keys[pygame.K_DOWN] and player_rect.bottom < Window_Height:
+        player_rect.y += player_velocity
     engage_boost(keys)
-
-    pass #TODO: (2025-02-10):  remove this when done.
 
 def engage_boost(keys):
     global boost_level, player_velocity
@@ -137,33 +125,27 @@ def move_burger():
 
 
 def handle_miss():
-    global player_lives
+    global player_lives, burger_velocity, boost_level
     if burger_rect.y > Window_Height:
         player_lives -= 1
         miss_sound.play()
-    burger_rect.topleft = (random.randint(0, Window_Width - 32), -Buffer_Distance)
-    #TODO: (2025-02-10):  set burger_velocity to STARTING_BURGER_VELOCITY
-    #TODO: (2025-02-10):  set player_rect.centerx to WINDOW_WIDTH // 2
-    #TODO: (2025-02-10):  set player_rect.bottom to WINDOW_HEIGHT
-    #TODO: (2025-02-10):  set boost_level to STARTING_BOOST_LEVEL
-    pass #TODO: (2025-02-10):  remove this when done.
+        burger_rect.topleft = (random.randint(0, Window_Width - 32), -Buffer_Distance)
+        burger_velocity = Starting_Burger_Velocity
+        player_rect.centerx = Window_Width // 2
+        player_rect.bottom = Window_Height
+        boost_level = Staring_Boost_Level
 
 def check_collisions():
-    global score, burgers_eaten
+    global score, burgers_eaten, burger_velocity, boost_level
     if player_rect.colliderect(burger_rect):
         score += burger_points
         burgers_eaten += 1
         bark_sound.play()
-        #TODO: (2025-02-10):  add burger_points to score
-        #TODO: (2025-02-10):  add 1 to burgers_eaten
-        #TODO: (2025-02-10):  call bark_sounds' play method
         burger_rect.topleft = (random.randint(0, Window_Width - 32), -Buffer_Distance)
-        #TODO: (2025-02-10):  add BURGER_ACCELERATION to burger_velocity
-
-        #TODO: (2025-02-10):  add 25 to boost_level
-        #TODO: (2025-02-10):  finally check if boost_level > STARTING_BOOST_LEVEL
-        #TODO: (2025-02-10):  then set boost_level to STARTING_BOOST_LEVEL
-        pass #TODO: (2025-02-10):  remove this when done.
+        burger_velocity += Burger_Acceleration
+        boost_level += 25
+        if boost_level > Staring_Boost_Level:
+            boost_level = Staring_Boost_Level
 
 def update_hud():
     points_text = font.render("Burger Points: " + str(burger_points), True, Orange)
@@ -173,27 +155,56 @@ def update_hud():
 
 
 def check_game_over():
-    #TODO: hold till 2025-02-12
-    pass #TODO: (2025-02-10):  remove this when done.
+    global game_over_text, is_paused, score, burgers_eaten, player_lives, boost_level, burger_velocity, running
+    if player_lives == 0:
+        game_over_text = font.render(f"FINAL SCORE: {score}", True, Orange)
+        display_surface.blit(game_over_text, game_over_rect)
+        display_surface.blit(continue_text, continue_rect)
+        pygame.display.update()
+        pygame.mixer.music.stop()
+        is_paused = True
+        while is_paused:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    score = 0
+                    burgers_eaten = 0
+                    player_lives = Player_Starting_Lives
+                    boost_level = Staring_Boost_Level
+                    burger_velocity = Starting_Burger_Velocity
+                    pygame.mixer.music.play()
+                    is_paused = False
+                if event.type == pygame.QUIT:
+                    is_paused = False
+                    running = False
 
 
 def display_hud():
     display_surface.fill(Black)
     display_surface.blit(points_text, points_rect)
-    display_surface.blit(score_text, scorce_rect)
+    display_surface.blit(score_text, score_rect)
     display_surface.blits(title_text, title_rect)
     display_surface.blits(eaten_text, eaten_rect)
     display_surface.blits(lives_text, lives_rect)
     display_surface.blits(boost_text, boost_rect)
-    #TODO (2025-02-10): We just blit points_text and points_rect
-    #TODO (cont.):  repeat for score, title, eaten, lives, boost
     pygame.draw.line(display_surface, White, (0, 100), (Window_Width, 100), 3)
     display_surface.blits(player_image, player_rect)
     display_surface.blits(burger_image, burger_rect)
+
 
 def handle_clock():
     pygame.display.update()
     Clock.tick(FPS)
 
+while running:
+    #TODO: (2025-02-12): Add the function calls below
+    check_quit()
+    move_player()
+    move_burger()
+    handle_miss()
+    check_collisions()
+    update_hud()
+    check_game_over()
+    display_hud()
+    handle_clock()
 
-## GAME LOOP COMING SOON.
+pygame.quit()

@@ -56,14 +56,14 @@ def prep_text(text: str, background_color: tuple[int, int, int], **locations: ob
 
 
 #result of call lines (notes)
-(points_text, points_rect) = prep_text( "Burger Points: {burger_points}", Orange, topleft=(10, 10))
-(score_text, score_rect) = prep_text( "Score: {score}", Orange, topleft=(10, 50))
-(title_text, title_rect) = prep_text( "Burger Dog", Orange, centerx=Window_Width // 2, y=10)
-(eaten_text, eaten_rect) = prep_text( "Burgers Eaten: {burgers_eaten}", Orange, centerx=Window_Width // 2, y=50)
-(lives_text, lives_rect) = prep_text( "Lives: {player_lives}", Orange,  topright=(Window_Width - 10, 10))
-(boost_text, boost_rect) = prep_text( "Boost: {boost_level}", Orange, topright=(Window_Width - 10, 50))
-(game_over_text, game_over_rect) = prep_text( "FINAL SCORE: {score}", Orange, center=(Window_Width // 2, Window_Height //2))
-(continue_text, continue_rect) = prep_text( "Press any key to play again", Orange, center=(Window_Width // 2, Window_Height // 2 + 64))
+(points_text, points_rect) = prep_text(f"Burger Points: {burger_points}", Orange, topleft=(10, 10))
+(score_text, score_rect) = prep_text(f"Score: {score}", Orange, topleft=(10, 50))
+(title_text, title_rect) = prep_text(f"Burger Dog", Orange, centerx=Window_Width // 2, y=10)
+(eaten_text, eaten_rect) = prep_text(f"Burgers Eaten: {burgers_eaten}", Orange, centerx=Window_Width // 2, y=50)
+(lives_text, lives_rect) = prep_text(f"Lives: {player_lives}", Orange,  topright=(Window_Width - 10, 10))
+(boost_text, boost_rect) = prep_text(f"Boost: {boost_level}", Orange, topright=(Window_Width - 10, 50))
+(game_over_text, game_over_rect) = prep_text(f"FINAL SCORE: {score}", Orange, center=(Window_Width // 2, Window_Height //2))
+(continue_text, continue_rect) = prep_text(f"Press any key to play again", Orange, center=(Window_Width // 2, Window_Height // 2 + 64))
 
 
 bark_sound = pygame.mixer.Sound("bark_sound.wav")
@@ -103,7 +103,7 @@ def move_player():
         player_rect.x -= player_velocity
         player_image = player_image_left
     elif keys[pygame.K_RIGHT] and player_rect.right < Window_Width:
-        player_rect.x -= player_velocity
+        player_rect.x += player_velocity
         player_image = player_image_left
     elif keys[pygame.K_UP] and player_rect.top > 100:
         player_rect.y -= player_velocity
@@ -114,6 +114,7 @@ def move_player():
 def engage_boost(keys):
     global boost_level, player_velocity
     if keys[pygame.K_SPACE] and boost_level > 0:
+        player_velocity = Player_Boost_Velocity
         boost_level -= 1
     else:
         player_velocity = Player_Normal_Velocity
@@ -148,11 +149,12 @@ def check_collisions():
             boost_level = Staring_Boost_Level
 
 def update_hud():
+    global points_text, score_text, eaten_text, lives_text, boost_text
     points_text = font.render("Burger Points: " + str(burger_points), True, Orange)
     score_text = font.render("Score: " + str(score), True, Orange)
     eaten_text = font.render("Burgers Eaten: " + str(burgers_eaten), True, Orange)
     lives_text = font.render("Lives: " + str(player_lives), True, Orange)
-
+    boost_text = font.render("Boost: " + str(boost_level), True, Orange)
 
 def check_game_over():
     global game_over_text, is_paused, score, burgers_eaten, player_lives, boost_level, burger_velocity, running
@@ -182,13 +184,13 @@ def display_hud():
     display_surface.fill(Black)
     display_surface.blit(points_text, points_rect)
     display_surface.blit(score_text, score_rect)
-    display_surface.blits(title_text, title_rect)
-    display_surface.blits(eaten_text, eaten_rect)
-    display_surface.blits(lives_text, lives_rect)
-    display_surface.blits(boost_text, boost_rect)
+    display_surface.blit(title_text, title_rect)
+    display_surface.blit(eaten_text, eaten_rect)
+    display_surface.blit(lives_text, lives_rect)
+    display_surface.blit(boost_text, boost_rect)
     pygame.draw.line(display_surface, White, (0, 100), (Window_Width, 100), 3)
-    display_surface.blits(player_image, player_rect)
-    display_surface.blits(burger_image, burger_rect)
+    display_surface.blit(player_image, player_rect)
+    display_surface.blit(burger_image, burger_rect)
 
 
 def handle_clock():
